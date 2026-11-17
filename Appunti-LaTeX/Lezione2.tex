@@ -1,0 +1,110 @@
+% ===================================================================
+% FILE: Lezione2.tex
+% ===================================================================
+
+\part{Lezione 12 (15/10/2025) }
+
+\section{Insertion Sort }
+Insertion Sort è un algoritmo di ordinamento che funziona in modo incrementale e iterativo .
+Per ogni $j$ da 2 a $n$ , si assume che il sottoarray $A[1..j-1]$ sia già ordinato .
+Si prende l'elemento $A[j]$ (la "chiave") e lo si inserisce nella posizione corretta all'interno di $A[1..j-1]$, spostando a destra gli elementi più grandi.
+
+\subsection{Pseudocodice}
+\begin{algorithmic}[1]
+\Procedure{InsertionSort}{A} 
+    \For{$j = 2 \to n$} 
+        \State $k = A[j]$ \Comment{Salva la chiave da inserire }
+        \State $i = j - 1$ \Comment{Inizia dal fondo della parte ordinata }
+        \While{($i > 0$) \textbf{and} ($A[i] > k$)} \Comment{Finché $i \ge 1$ e trovo elem. > chiave }
+            \State $A[i+1] = A[i]$ \Comment{Sposta l'elemento a destra }
+            \State $i = i - 1$
+        \EndWhile
+        \State $A[i+1] = k$ \Comment{Inserisci la chiave nella posizione corretta }
+    \EndFor
+\EndProcedure
+\end{algorithmic}
+
+\subsection{Esempio di Esecuzione }
+% --- APPLICAZIONE STILE ---
+\begin{example}[Esecuzione: Insertion Sort]
+Array $A = [5, 2, 4, 6, 1, 3]$ 
+\begin{itemize}
+    \item $j=2$, $k=2$. $A[1]>k$ (5>2). Sposta. $A = [\underline{2, 5}, 4, 6, 1, 3]$ 
+    \item $j=3$, $k=4$. $A[2]>k$ (5>4). Sposta. $A[1] \ngtr k$ (2>4 falso). Inserisci. $A = [2, \underline{4, 5}, 6, 1, 3]$ 
+    \item $j=4$, $k=6$. $A[3] \ngtr k$ (5>6 falso). Inserisci. $A = [2, 4, 5, \underline{6}, 1, 3]$ 
+    \item $j=5$, $k=1$. $A[4]>k$ (6>1). Sposta. ... $A[1]>k$ (2>1). Sposta. $i=0$. Inserisci. $A = [\underline{1, 2, 4, 5, 6}, 3]$ 
+    \item $j=6$, $k=3$. $A[5]>k$ (6>3). Sposta. ... $A[2] \ngtr k$ (2>3 falso). Inserisci. $A = [1, 2, \underline{3, 4, 5, 6}]$ 
+\end{itemize}
+\end{example}
+
+\subsection{Correttezza (Invariante di Ciclo) }
+Si dimostra per induzione usando un'invariante di ciclo .
+% --- APPLICAZIONE STILE ---
+\begin{definition}[Invariante di Ciclo: Insertion Sort]
+\textbf{Invariante:} All'inizio di ogni iterazione $j$-esima del ciclo FOR (per $j=2..n$) :
+\begin{enumerate}
+    \item Il sottoarray $A[1..j-1]$ è ordinato .
+    \item Il sottoarray $A[1..j-1]$ contiene gli stessi elementi che stavano in $A[1..j-1]$ all'inizio .
+\end{enumerate}
+\begin{itemize}
+    \item \textbf{Base ($j=2$)} : All'inizio, $A[1..j-1] = A[1]$. Un array di un elemento è banalmente ordinato . L'invariante è vero.
+    \item \textbf{Induzione ($j \to j+1$)} : Assumiamo che $A[1..j-1]$ sia ordinato . Il corpo del ciclo (il `while`) inserisce $k=A[j]$ nel posto corretto $A[1..j-1]$ per formare il nuovo sottoarray $A[1..j]$, che risulta ordinato e contiene gli stessi elementi . L'invariante è mantenuto per $j+1$.
+    \item \textbf{Terminazione}: Il ciclo termina quando $j=n+1$ . Per l'invariante, all'inizio di questa "iterazione", $A[1..(n+1)-1] = A[1..n]$ è ordinato e contiene gli elementi originali . L'algoritmo è corretto .
+\end{itemize}
+\end{definition}
+
+\subsection{Analisi Complessità di Insertion Sort }
+Il costo $T(n)$ dipende dal numero $d_j$ di esecuzioni del corpo del `while` per ogni $j$ .
+% --- APPLICAZIONE STILE ---
+\begin{observation}[Analisi: Insertion Sort]
+\begin{itemize}
+    \item \textbf{Caso Ottimo} : L'array è già ordinato .
+    La guardia del `while` ($A[i]>k$) è sempre falsa al primo controllo .
+    $d_j = 1$ (solo confronto) per ogni $j$ .
+    $T(n) = \sum_{j=2}^{n} c_1 = c_1(n-1) \in \Theta(n)$ .
+    Complessità \textbf{Lineare} .
+    
+    \item \textbf{Caso Pessimo} : L'array è ordinato in ordine inverso .
+    La chiave $k=A[j]$ è sempre più piccola di tutti gli elementi in $A[1..j-1]$.
+    Il `while` esegue $j-1$ confronti e spostamenti per ogni $j$ .
+    $T(n) = \sum_{j=2}^{n} c_2(j-1) = c_2 \sum_{k=1}^{n-1} k = c_2 \frac{n(n-1)}{2}$ .
+    Complessità \textbf{Quadratica} .
+\end{itemize}
+\end{observation}
+
+\section{Selection Sort }
+È un altro algoritmo di ordinamento iterativo .
+Al passo $i$-esimo (per $i=1..n-1$) , l'algoritmo mantiene l'invariante che $A[1..i-1]$ contiene gli $i-1$ elementi più piccoli di tutto l'array, ordinati .
+L'algoritmo cerca l'elemento più piccolo nella porzione non ordinata $A[i..n]$ e lo scambia con $A[i]$.
+
+\subsection{Pseudocodice}
+\begin{algorithmic}[1]
+\Procedure{SelectionSort}{A} 
+    \For{$i = 1 \to n-1$} 
+        \State $min = i$ \Comment{Indice del minimo temporaneo }
+        \For{$j = i+1 \to n$} 
+            \If{$A[j] < A[min]$} \Comment{Trovato un nuovo minimo }
+                \State $min = j$ 
+            \EndIf
+        \EndFor
+        \State \Call{Swap}{A[i], A[min]} \Comment{Metti il minimo al posto $i$ }
+    \EndFor
+\EndProcedure
+\end{algorithmic}
+
+\subsection{Esempio di Esecuzione }
+
+\begin{example}[Esecuzione: Selection Sort]
+Array $A = [46, 42, 4, 15, 3]$ 
+\begin{itemize}
+    \item $i=1$. Minimo in $A[1..5]$ è 3 (in pos 5). Scambia $A[1]$ e $A[5]$.
+    $A = [\underline{3}, 42, 4, 15, 46]$ 
+    \item $i=2$. Minimo in $A[2..5]$ è 4 (in pos 3). Scambia $A[2]$ e $A[3]$.
+    $A = [3, \underline{4}, 42, 15, 46]$ 
+    \item $i=3$. Minimo in $A[3..5]$ è 15 (in pos 4). Scambia $A[3]$ e $A[4]$.
+    $A = [3, 4, \underline{15}, 42, 46]$ 
+    \item $i=4$. Minimo in $A[4..5]$ è 42 (in pos 4). Scambia $A[4]$ e $A[4]$. $A = [3, 4, 15, \underline{42}, 46]$ 
+\end{itemize}
+\end{example}
+
+\newpage
